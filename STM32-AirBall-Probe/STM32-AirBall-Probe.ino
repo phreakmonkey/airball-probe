@@ -2,6 +2,10 @@
     Created by Kenneth C. Budd - phreakmonkey@gmail.com
 **/
 
+
+#include <Wire.h>
+#include <Adafruit_BMP085.h>
+
 /** Build-time Config Values 
     LED = pin for LED status indicator.
     SENSOR1, SENSOR2, SENSOR3 = Analog input pin assignments
@@ -18,6 +22,8 @@
 #define TIMERB 200
 
 /** End Config Section **/
+
+Adafruit_BMP085 bmp;
 
 uint16_t sensor1avg;
 uint16_t sensor2avg;
@@ -39,6 +45,9 @@ void setup() {
     sensor3avg = AnalogSensor(SENSOR3);
 
     Serial1.begin(115200);  // STM32F103C8 pins PA2/A2(tx) PA3/A3(rx)
+    if (!bmp.begin()) {
+        Serial1.println("Could not find a valid BMP085 sensor, check wiring!");
+    }
 }
 
 void loop() {
@@ -71,8 +80,13 @@ void OutputSentence(uint16_t s1, uint16_t s2, uint16_t s3)
   Serial1.print("@");
   Serial1.print(s1);
   Serial1.print(",");
-  Serial1.println(s2);
+  Serial1.print(s2);
   Serial1.print(",");
-  Serial1.println(s3);
+  Serial1.print(s3);
+  Serial1.print(",");
+  Serial1.print(bmp.readAltitude());  // Pressure Altitude (29.92in SLP)
+  Serial1.print(",");
+  Serial1.print(bmp.readTemperature());  // Temp of BMP180 sensor
+  Serial1.println();
 }
 
